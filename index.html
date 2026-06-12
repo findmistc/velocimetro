@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Velocidade</title>
+    <style>
+        body {
+            background-color: #0a0e17;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .painel {
+            text-align: center;
+            background: linear-gradient(145deg, #121824, #1a2336);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.2), inset 0 0 15px rgba(255,255,255,0.05);
+            border: 2px solid #00d2ff;
+        }
+        .titulo {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8899a6;
+            margin-bottom: 10px;
+        }
+        .display {
+            position: relative;
+            display: inline-block;
+        }
+        .numero {
+            font-size: 90px;
+            font-weight: 900;
+            color: #00d2ff;
+            text-shadow: 0 0 20px #00d2ff;
+            font-family: monospace;
+            line-height: 1;
+        }
+        .unidade {
+            font-size: 18px;
+            color: #00ff88;
+            font-weight: bold;
+            margin-top: 5px;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="painel">
+        <div class="titulo">Velocidade Atual</div>
+        <div class="display">
+            <div class="numero" id="valor-velocidade">0.0</div>
+        </div>
+        <div class="unidade">KM/H</div>
+    </div>
+
+    <script>
+        function buscarVelocidade() {
+            fetch('pegar_velocidade.php')
+            .then(resposta => resposta.json())
+            .then(dados => {
+                // Atualiza o número na tela
+                document.getElementById('valor-velocidade').innerText = dados.velocidade;
+            })
+            .catch(erro => console.error('Erro ao buscar dados:', erro));
+        }
+
+        // Busca o dado na tela a cada 500 milissegundos (metade de 1 segundo)
+        setInterval(buscarVelocidade, 500);
+    </script>
+</body>
+</html>
