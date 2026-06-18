@@ -1,23 +1,22 @@
 <?php
-$servername = "localhost"; // Mude se o seu servidor for online
-$username = "SEU_USUARIO";
-$password = "SUA_SENHA";
-$dbname = "NOME_DO_BANCO";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+include("conexao.php");
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Pega a velocidade direta que o ESP32 calculou
-    $velocidade = floatval($_POST["velocidade"]);
+if(isset($_POST['velocidade']) && isset($_POST['rpm'])){
 
-    // Salva direto no banco de dados
-    $sql = "INSERT INTO registro_velocidade (velocidade) VALUES ('$velocidade')";
-    
-    if ($conn->query($sql) === TRUE) {
-        echo "Velocidade salva!";
+    $velocidade = intval($_POST['velocidade']);
+    $rpm = intval($_POST['rpm']);
+
+    $sql = "INSERT INTO dados(velocidade,rpm)
+            VALUES($velocidade,$rpm)";
+
+    if($conn->query($sql)){
+        echo "OK";
     } else {
-        echo "Erro ao salvar";
+        echo "ERRO";
     }
 }
+
 $conn->close();
+
 ?>

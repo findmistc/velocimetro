@@ -1,80 +1,78 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Velocidade</title>
-    <style>
-        body {
-            background-color: #0a0e17;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
-        .painel {
-            text-align: center;
-            background: linear-gradient(145deg, #121824, #1a2336);
-            padding: 40px;
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0, 210, 255, 0.2), inset 0 0 15px rgba(255,255,255,0.05);
-            border: 2px solid #00d2ff;
-        }
-        .titulo {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #8899a6;
-            margin-bottom: 10px;
-        }
-        .display {
-            position: relative;
-            display: inline-block;
-        }
-        .numero {
-            font-size: 90px;
-            font-weight: 900;
-            color: #00d2ff;
-            text-shadow: 0 0 20px #00d2ff;
-            font-family: monospace;
-            line-height: 1;
-        }
-        .unidade {
-            font-size: 18px;
-            color: #00ff88;
-            font-weight: bold;
-            margin-top: 5px;
-            letter-spacing: 1px;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Velocímetro Digital</title>
+
+<style>
+
+body{
+    background:#f0f0f0;
+    font-family:Arial;
+    text-align:center;
+    margin-top:100px;
+}
+
+.painel{
+    background:white;
+    width:350px;
+    margin:auto;
+    padding:30px;
+    border-radius:15px;
+    box-shadow:0 0 10px rgba(0,0,0,0.2);
+}
+
+.valor{
+    font-size:40px;
+    margin:20px;
+}
+
+</style>
+
 </head>
+
 <body>
 
-    <div class="painel">
-        <div class="titulo">Velocidade Atual</div>
-        <div class="display">
-            <div class="numero" id="valor-velocidade">0.0</div>
-        </div>
-        <div class="unidade">KM/H</div>
-    </div>
+<div class="painel">
 
-    <script>
-        function buscarVelocidade() {
-            fetch('pegar_velocidade.php')
-            .then(resposta => resposta.json())
-            .then(dados => {
-                // Atualiza o número na tela
-                document.getElementById('valor-velocidade').innerText = dados.velocidade;
-            })
-            .catch(erro => console.error('Erro ao buscar dados:', erro));
-        }
+<h1>Telemetria</h1>
 
-        // Busca o dado na tela a cada 500 milissegundos (metade de 1 segundo)
-        setInterval(buscarVelocidade, 500);
-    </script>
+<div class="valor">
+<span id="velocidade">0</span> km/h
+</div>
+
+<div class="valor">
+<span id="rpm">0</span> RPM
+</div>
+
+</div>
+
+<script>
+
+function atualizarDados(){
+
+    fetch("buscar_ultimo.php")
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        document.getElementById("velocidade").innerText =
+        data.velocidade;
+
+        document.getElementById("rpm").innerText =
+        data.rpm;
+
+    })
+
+    .catch(error => console.log(error));
+}
+
+atualizarDados();
+
+setInterval(atualizarDados,1000);
+
+</script>
+
 </body>
 </html>
