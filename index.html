@@ -2,77 +2,178 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Velocímetro Digital</title>
 
+<!-- Importação de fonte digital e ícones -->
+<link rel="preconnect" href="https://googleapis.com">
+<link rel="preconnect" href="https://gstatic.com" crossorigin>
+<link href="https://googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cloudflare.com">
+
 <style>
+    :root {
+        --bg-color: #0a0e17;
+        --panel-bg: rgba(18, 24, 38, 0.75);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --accent-speed: #00ffcc;
+        --accent-rpm: #ff3366;
+        --text-color: #ffffff;
+        --text-muted: #8c9cb8;
+    }
 
-body{
-    background:#f0f0f0;
-    font-family:Arial;
-    text-align:center;
-    margin-top:100px;
-}
+    body {
+        background-color: var(--bg-color);
+        background-image: radial-gradient(circle at 50% 50%, rgba(25, 35, 55, 0.4) 0%, rgba(10, 14, 23, 0.8) 100%);
+        font-family: 'Outfit', sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        color: var(--text-color);
+        overflow: hidden;
+    }
 
-.painel{
-    background:white;
-    width:350px;
-    margin:auto;
-    padding:30px;
-    border-radius:15px;
-    box-shadow:0 0 10px rgba(0,0,0,0.2);
-}
+    .painel {
+        background: var(--panel-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        width: 380px;
+        padding: 40px 30px;
+        border-radius: 24px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
 
-.valor{
-    font-size:40px;
-    margin:20px;
-}
+    .painel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent-speed), var(--accent-rpm));
+    }
 
+    h1 {
+        font-size: 1.25rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 35px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .grupo-dado {
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .grupo-dado:last-child {
+        margin-bottom: 0;
+    }
+
+    .rotulo {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .valor {
+        font-family: 'Orbitron', monospace;
+        font-size: 4.5rem;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -1px;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+    }
+
+    .unidade {
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin-left: 5px;
+        letter-spacing: normal;
+        vertical-align: super;
+        color: var(--text-muted);
+    }
+
+    #velocidade-val {
+        color: var(--accent-speed);
+    }
+
+    #rpm-val {
+        color: var(--accent-rpm);
+    }
+
+    /* Indicador visual de atualização (pisca sutilmente) */
+    .flash {
+        animation: pulso 0.3s ease-out;
+    }
+
+    @keyframes pulso {
+        0% { opacity: 0.6; }
+        100% { opacity: 1; }
+    }
 </style>
-
 </head>
-
 <body>
 
-<div class="painel">
+    <div class="painel" id="painel-telemetria">
+        <h1><i class="fa-solid fa-gauge"></i> Telemetria</h1>
+        
+        <div class="grupo-dado">
+            <div class="rotulo"><i class="fa-solid fa-speedometer" style="color: var(--accent-speed);"></i> Velocidade</div>
+            <div class="valor"><span id="velocidade">0</span><span class="unidade">km/h</span></div>
+        </div>
 
-<h1>Telemetria</h1>
+        <div class="grupo-dado">
+            <div class="rotulo"><i class="fa-solid fa-engine" style="color: var(--accent-rpm);"></i> Rotação</div>
+            <div class="valor"><span id="rpm">0</span><span class="unidade">RPM</span></div>
+        </div>
+    </div>
 
-<div class="valor">
-<span id="velocidade">0</span> km/h
-</div>
+    <script>
+        function atualizarDados(){
+            fetch("buscar_ultimo.php")
+                .then(response => response.json())
+                .then(data => {
+                    const velocidadeSpan = document.getElementById("velocidade");
+                    const rpmSpan = document.getElementById("rpm");
+                    const painel = document.getElementById("painel-telemetria");
 
-<div class="valor">
-<span id="rpm">0</span> RPM
-</div>
+                    // Atualiza os valores na tela
+                    velocidadeSpan.innerText = data.velocidade;
+                    rpmSpan.innerText = data.rpm;
 
-</div>
+                    // Adiciona um efeito visual de pulso no painel ao atualizar
+                    painel.classList.add("flash");
+                    setTimeout(() => painel.classList.remove("flash"), 300);
+                })
+                .catch(error => console.log("Erro ao buscar telemetria:", error));
+        }
 
-<script>
+        // Executa imediatamente ao carregar
+        atualizarDados();
 
-function atualizarDados(){
-
-    fetch("buscar_ultimo.php")
-
-    .then(response => response.json())
-
-    .then(data => {
-
-        document.getElementById("velocidade").innerText =
-        data.velocidade;
-
-        document.getElementById("rpm").innerText =
-        data.rpm;
-
-    })
-
-    .catch(error => console.log(error));
-}
-
-atualizarDados();
-
-setInterval(atualizarDados,1000);
-
-</script>
+        // Atualiza a cada 1 segundo
+        setInterval(atualizarDados, 1000);
+    </script>
 
 </body>
 </html>
